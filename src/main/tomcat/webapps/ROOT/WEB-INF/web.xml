@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+         
+    <!-- Add the listeners, order is important -->
+    <listener>
+        <listener-class>com.baddata.api.listener.AppServletContextListener</listener-class>
+    </listener>
+    
+    <!-- Add the servlets -->
+    
+    <!-- Main jersey RESTful API servlet -->
+	<servlet>
+	   <servlet-name>jersey-servlet</servlet-name>
+	   <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+	   <init-param>
+	       <!-- disable directory listings -->
+	       <param-name>listings</param-name>
+	       <param-value>false</param-value>
+	   </init-param>
+	   <init-param>
+	       <param-name>com.sun.jersey.config.property.packages</param-name>
+	       <param-value>com.baddata.api</param-value>
+	   </init-param>
+	   <load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+	   <servlet-name>jersey-servlet</servlet-name>
+	   <url-pattern>/api/*</url-pattern>
+	</servlet-mapping>
+    
+    <servlet>
+        <description>Upload an avatar image file to the server</description>
+        <servlet-name>avatar-file-upload-servlet</servlet-name>
+        <display-name>Avatar File Upload Servlet</display-name>
+        <servlet-class>com.baddata.api.servlet.AvatarFileUploaderServlet</servlet-class>
+        <multipart-config>
+            <!-- 10 MB -->
+            <max-file-size>10485760</max-file-size>
+            <!-- 20 MB -->
+            <max-request-size>20971520</max-request-size>
+            <!-- 2 MB -->
+            <file-size-threshold>2097152</file-size-threshold>
+        </multipart-config>
+    </servlet>
+    <servlet-mapping>
+       <servlet-name>avatar-file-upload-servlet</servlet-name>
+       <url-pattern>/api/upload/avatar</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <description>Upload a profile background image file to the server</description>
+        <servlet-name>profile-background-file-upload-servlet</servlet-name>
+        <display-name>Profile background File Upload Servlet</display-name>
+        <servlet-class>com.baddata.api.servlet.ProfileBackgroundFileUploaderServlet</servlet-class>
+        <multipart-config>
+            <!-- 10 MB -->
+            <max-file-size>10485760</max-file-size>
+            <!-- 20 MB -->
+            <max-request-size>20971520</max-request-size>
+            <!-- 2 MB -->
+            <file-size-threshold>2097152</file-size-threshold>
+        </multipart-config>
+    </servlet>
+    <servlet-mapping>
+       <servlet-name>profile-background-file-upload-servlet</servlet-name>
+       <url-pattern>/api/upload/profile-background</url-pattern>
+    </servlet-mapping>
+	
+	<!-- Add the filters -->
+	<filter>
+	   <filter-name>RestApiFilter</filter-name>
+	   <filter-class>com.baddata.api.filter.RestApiFilter</filter-class>
+	</filter>
+	
+	<filter>
+	   <filter-name>CacheControlFilter</filter-name>
+	   <filter-class>com.baddata.api.filter.CacheControlFilter</filter-class>
+	</filter>
+	
+	<!-- 1st filter in chain -->
+	<filter-mapping>
+	   <filter-name>CacheControlFilter</filter-name>
+	   <url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<filter-mapping>
+	   <filter-name>RestApiFilter</filter-name>
+	   <url-pattern>/api/*</url-pattern>
+	</filter-mapping>
+	
+	<!-- Error response status mapping -->
+	<error-page>
+        <error-code>404</error-code>
+        <location>/404page.html</location>
+    </error-page>
+    
+    <error-page>
+        <exception-type>java.io.IOException</exception-type>
+        <location>/ioexception.html</location>
+    </error-page>
+    
+    <!-- session config params, session timeout -->
+	<session-config>
+		<!--Default to 3 hour session timeout-->
+		<session-timeout>180</session-timeout>
+		<tracking-mode>COOKIE</tracking-mode>
+		<cookie-config>
+  			<http-only>true</http-only>
+ 		</cookie-config>
+	</session-config>
+	
+	<mime-mapping>
+        <extension>png</extension>
+        <mime-type>image/png</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>jpe</extension>
+        <mime-type>image/jpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>jpeg</extension>
+        <mime-type>image/jpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>jpg</extension>
+        <mime-type>image/jpeg</mime-type>
+    </mime-mapping>
+	
+</web-app>
